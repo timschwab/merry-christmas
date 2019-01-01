@@ -4,17 +4,19 @@ let sentences
 
 const numOfBlocks = blocks.length
 const numOfChoices = blocks[0].length
+const defaultSampleSize = 100
 
-function main() {
-	anagrams = {}
-	words = []
+function main(sampleSize) {
+	sampleSize = sampleSize || defaultSampleSize
 
 	getAnagrams()
 	getWords()
-	generateSentences()
+	findSolutions(sampleSize)
 }
 
 function getAnagrams() {
+	anagrams = {}
+
 	if (localStorage.getItem('anagrams')) {
 		console.log('Retrieving anagrams...')
 		anagrams = JSON.parse(localStorage.getItem('anagrams'))
@@ -43,6 +45,8 @@ function generateOneAnagram(index) {
 }
 
 function getWords() {
+	words = []
+
 	if (localStorage.getItem('words')) {
 		console.log('Retrieving words...')
 		words = JSON.parse(localStorage.getItem('words'))
@@ -94,48 +98,91 @@ function getWords() {
 	console.log('Done')
 }
 
-function generateSentences() {
-	console.log('Generating sentences...')
-	let processing = initSentences()
-	//while (processing.length > 0) {
-		processing = filterSentences(processing)
-		processing = combineSentences(processing)
-	//}
+/*
+	Algorithm: starts with one word solutions, which is exactly the words data
+	structure. Next it combines them all with each other, finding the two word
+	solutions. Then it combines these with the one word solutions, which finds
+	the three word solutions. And so on, until it cannot continue.
+*/
+function findSolutions(sampleSize) {
+	console.log('Sampling word list...')
+	words = _.sampleSize(words, sampleSize)
 
-	sentences = processing
+	solutions = []
+
+	console.log('Finding solutions...')
+
+	console.log('Finding solutions with 1 word...')
+	let solutionSet = firstSolutions()
+	let wordCount = 2
+	while (solutionSet.length > 0) {
+		solutions.push(solutionSet)
+		console.log('Finding solutions with ' + wordCount + ' words...')
+		solutionSet = nextSolutions(solutionSet)
+		wordCount++
+	}
+
 	console.log('Done')
 }
 
-function initSentences() {
-	console.log('Copying words into processing list...')
+function firstSolutions() {
+	console.log('Copying words into first solution list...')
 
-	let processing = []
+	let firstList = []
 	words.forEach((word) => {
 		let copy = {
 			canonical: word.canonical,
-			list: []
+			words: [word.canonical]
 		}
 
-		word.list.forEach((original) => {
-			copy.list.push(original)
+		firstList.push(copy)
+	})
+
+	return firstList
+}
+
+// By far, most compute-intensive function
+function nextSolutions(solutions) {
+	let nextSolutions = {}
+
+	// For every solution, try combining it with every word
+	// This double loop is the bottleneck of the entire algorithm
+	for (let sol = 0 ; sol < solutions.length ; sol++) {
+		let solCanon =  solutions[sol].canonical
+		let maxLength = numOfBlocks - solCanon.length
+
+		for (let wrd = 0 ; wrd < words.length ; wrd ++) {
+			let wrdCanon = words[wrd].canonical
+
+			if (wrdCanon.length > maxLength) {
+				continue
+			}
+
+			let combined = canonicalVersion(solCanon + wrdCanon)
+			if (canWork(combined)) {
+				addToSolution(nextSolutions, combined, solutions[sol], words[wrd])
+			}
+		}
+	}
+
+	// Convert back to list
+	let result = []
+	for (let solution in nextSolutions) {
+		result.push({
+			canonical: solution,
+			words: nextSolutions[solution]
 		})
+	}
 
-		processing.push(copy)
-	})
-
-	return processing
+	return result
 }
 
-function filterSentences(processing) {
-	return processing.filter((phrase) => {
-		return (phrase.canonical.length == numOfBlocks)
-	})
-}
-
-function combineSentences(processing) {
-	// O(n^2), where n = processing.length
-
-	// Combine every word with every other word
+function addToSolution(solutionSet, canonical, prev, word) {
+	if (solutionSet[canonical]) {
+		// combine with existing
+	} else {
+		solutionSet[canonical] = prev.words.concat(word.canonical)
+	}
 }
 
 // Assumes str is in canonical version
@@ -153,7 +200,11 @@ function canonicalVersion(str) {
 	return sorted.join('')
 }
 
-
+function recalc() {
+	localStorage.removeItem('anagrams')
+	localStorage.removeItem('words')
+	main()
+}
 
 
 
