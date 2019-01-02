@@ -52,9 +52,9 @@ function getWords() {
 		words = JSON.parse(localStorage.getItem('words'))
 	} else {
 		console.log('Loading words...')
-		scrabbleList = scrabble.trim().split('\n')
-		nameList = names.trim().split('\n')
-		words = _.uniq(scrabbleList.concat(nameList))
+		wordList = rawWords.trim().toLowerCase().split('\n')
+		nameList = names.trim().toLowerCase().split('\n')
+		words = _.uniq(wordList.concat(nameList))
 	
 		console.log('Removing impossible words...')
 		words = words.filter((word) => {
@@ -116,7 +116,7 @@ function buildWordDict() {
 */
 function findSolutions(sampleSize) {
 	console.log('Sampling word list...')
-	words = _.sampleSize(words, sampleSize)
+	let wordList = _.sampleSize(words, sampleSize)
 
 	solutions = []
 
@@ -144,7 +144,7 @@ function findSolutions(sampleSize) {
 		console.log('Copying words into first solution list...')
 
 		let firstList = []
-		words.forEach((word) => {
+		wordList.forEach((word) => {
 			let copy = {
 				canonical: word.canonical,
 				factors: [[word.canonical]]
@@ -166,9 +166,9 @@ function findSolutions(sampleSize) {
 			let solCanon =  solutions[sol].canonical
 			let maxLength = numOfBlocks - solCanon.length
 	
-			for (let wrd = 0 ; wrd < words.length ; wrd ++) {
-				let wrdCanon = words[wrd].canonical
-	
+			for (let wrd = 0 ; wrd < wordList.length ; wrd ++) {
+				let wrdCanon = wordList[wrd].canonical
+
 				if (wrdCanon.length > maxLength) {
 					continue
 				}
