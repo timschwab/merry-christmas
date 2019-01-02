@@ -138,8 +138,8 @@ function findSolutions(sampleSize) {
 	let wordCount = 1
 	while (solutionSet.length > 0) {
 		solutions.push(solutionSet)
-		console.log('Finding solutions with ' + wordCount + ' words...')
 		wordCount++
+		console.log('Finding solutions with ' + wordCount + ' words...')
 		solutionSet = nextSolutions(solutionSet)
 	}
 	console.log('No solutions with ' + wordCount + ' words.')
@@ -220,12 +220,14 @@ function findSolutions(sampleSize) {
 	}
 
 	function translateSolution(solution) {
+		// Replace each canonical form with the array of real words
 		let expanded = solution.factors.map((factors) => {
 			return factors.map((word) => {
 				return wordDict[word]
 			})
 		})
 
+		// Generate the possible sentences with the real words
 		let translated = expanded.map((list) => {
 			return listCombinations(list, ' ')
 		})
