@@ -132,7 +132,7 @@ function firstSolutions() {
 	words.forEach((word) => {
 		let copy = {
 			canonical: word.canonical,
-			words: [word.canonical]
+			factors: [[word.canonical]]
 		}
 
 		firstList.push(copy)
@@ -151,7 +151,7 @@ function nextSolutions(solutions) {
 		let solCanon =  solutions[sol].canonical
 		let maxLength = numOfBlocks - solCanon.length
 
-		for (let wrd = 0 ; wrd < words.length ; wrd ++) {
+		for (let wrd = sol ; wrd < words.length ; wrd ++) {
 			let wrdCanon = words[wrd].canonical
 
 			if (wrdCanon.length > maxLength) {
@@ -160,7 +160,7 @@ function nextSolutions(solutions) {
 
 			let combined = canonicalVersion(solCanon + wrdCanon)
 			if (canWork(combined)) {
-				addToSolution(nextSolutions, combined, solutions[sol], words[wrd])
+				addToSolution(nextSolutions, combined, solutions[sol], wrdCanon)
 			}
 		}
 	}
@@ -170,18 +170,22 @@ function nextSolutions(solutions) {
 	for (let solution in nextSolutions) {
 		result.push({
 			canonical: solution,
-			words: nextSolutions[solution]
+			factors: nextSolutions[solution]
 		})
 	}
 
 	return result
 }
 
-function addToSolution(solutionSet, canonical, prev, word) {
+function addToSolution(solutionSet, canonical, prev, factor) {
+	let newFactors = prev.factors.map((factorList) => {
+		return factorList.concat(factor)
+	})
+
 	if (solutionSet[canonical]) {
-		// combine with existing
+		solutionSet[canonical] = solutionSet[canonical].concat(newFactors)
 	} else {
-		solutionSet[canonical] = prev.words.concat(word.canonical)
+		solutionSet[canonical] = newFactors
 	}
 }
 
