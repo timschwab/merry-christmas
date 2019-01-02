@@ -29,28 +29,19 @@ function getAnagrams() {
 	if (localStorage.getItem('anagrams')) {
 		console.log('Retrieving anagrams...')
 		anagrams = JSON.parse(localStorage.getItem('anagrams'))
+
 	} else {
 		console.log('Generating anagrams...')
-		for (let i = 0 ; i < numOfChoices**numOfBlocks ; i++) {
-			anagrams[generateOneAnagram(i)] = 1
-		}
+
+		let rawAnagrams = listCombinations(blocks, '')
+		rawAnagrams.forEach((anagram) => {
+			anagrams[canonicalVersion(anagram)] = 1
+		})
 
 		localStorage.setItem('anagrams', JSON.stringify(anagrams))
 	}
 
 	console.log('Done')
-
-	function generateOneAnagram(index) {
-		let anagram = ''
-	
-		for (let k = 0 ; k < blocks.length ; k++) {
-			let choice = index % numOfChoices
-			anagram += blocks[k][choice]
-			index = Math.round((index - choice) / numOfChoices)
-		}
-	
-		return canonicalVersion(anagram)
-	}
 }
 
 function getWords() {
