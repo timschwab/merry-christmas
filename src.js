@@ -1,16 +1,25 @@
 let anagrams
 let words
-let sentences
+let wordDict
+let solutions
 
 const numOfBlocks = blocks.length
 const numOfChoices = blocks[0].length
 const defaultSampleSize = 100
+const defaultSolutionAmount = 100
+
+function getSolutions(amount) {
+	amount = amount || defaultSolutionAmount
+
+	return _.sampleSize(solutions, amount)
+}
 
 function main(sampleSize) {
 	sampleSize = sampleSize || defaultSampleSize
 
 	getAnagrams()
 	getWords()
+	buildWordDict()
 	findSolutions(sampleSize)
 }
 
@@ -30,18 +39,18 @@ function getAnagrams() {
 	}
 
 	console.log('Done')
-}
 
-function generateOneAnagram(index) {
-	let anagram = ''
-
-	for (let k = 0 ; k < blocks.length ; k++) {
-		let choice = index % numOfChoices
-		anagram += blocks[k][choice]
-		index = Math.round((index - choice) / numOfChoices)
+	function generateOneAnagram(index) {
+		let anagram = ''
+	
+		for (let k = 0 ; k < blocks.length ; k++) {
+			let choice = index % numOfChoices
+			anagram += blocks[k][choice]
+			index = Math.round((index - choice) / numOfChoices)
+		}
+	
+		return canonicalVersion(anagram)
 	}
-
-	return canonicalVersion(anagram)
 }
 
 function getWords() {
@@ -92,10 +101,22 @@ function getWords() {
 		return soFar
 		}, [])
 
+
+
 		localStorage.setItem('words', JSON.stringify(words))
 	}
 
 	console.log('Done')
+}
+
+function buildWordDict() {
+	wordDict = {}
+
+	console.log('Building word dictionary...')
+
+	words.forEach((word) => {
+		wordDict[word.canonical] = word.list
+	})
 }
 
 /*
@@ -114,78 +135,102 @@ function findSolutions(sampleSize) {
 
 	console.log('Finding solutions with 1 word...')
 	let solutionSet = firstSolutions()
-	let wordCount = 2
+	let wordCount = 1
 	while (solutionSet.length > 0) {
 		solutions.push(solutionSet)
 		console.log('Finding solutions with ' + wordCount + ' words...')
-		solutionSet = nextSolutions(solutionSet)
 		wordCount++
+		solutionSet = nextSolutions(solutionSet)
 	}
+	console.log('No solutions with ' + wordCount + ' words.')
+
+	console.log('Combining all solutions...')
+	solutions = _.flatten(solutions)
+
+	console.log('Translating solutions...')
+	solutions = solutions.map(translateSolution)
+	solutions = _.flatten(solutions)
 
 	console.log('Done')
-}
 
-function firstSolutions() {
-	console.log('Copying words into first solution list...')
+	function firstSolutions() {
+		console.log('Copying words into first solution list...')
 
-	let firstList = []
-	words.forEach((word) => {
-		let copy = {
-			canonical: word.canonical,
-			factors: [[word.canonical]]
-		}
-
-		firstList.push(copy)
-	})
-
-	return firstList
-}
-
-// By far, most compute-intensive function
-function nextSolutions(solutions) {
-	let nextSolutions = {}
-
-	// For every solution, try combining it with every word
-	// This double loop is the bottleneck of the entire algorithm
-	for (let sol = 0 ; sol < solutions.length ; sol++) {
-		let solCanon =  solutions[sol].canonical
-		let maxLength = numOfBlocks - solCanon.length
-
-		for (let wrd = sol ; wrd < words.length ; wrd ++) {
-			let wrdCanon = words[wrd].canonical
-
-			if (wrdCanon.length > maxLength) {
-				continue
+		let firstList = []
+		words.forEach((word) => {
+			let copy = {
+				canonical: word.canonical,
+				factors: [[word.canonical]]
 			}
 
-			let combined = canonicalVersion(solCanon + wrdCanon)
-			if (canWork(combined)) {
-				addToSolution(nextSolutions, combined, solutions[sol], wrdCanon)
-			}
-		}
-	}
-
-	// Convert back to list
-	let result = []
-	for (let solution in nextSolutions) {
-		result.push({
-			canonical: solution,
-			factors: nextSolutions[solution]
+			firstList.push(copy)
 		})
+
+		return firstList
 	}
 
-	return result
-}
+	// By far, most compute-intensive function
+	function nextSolutions(solutions) {
+		let nextSolutions = {}
+	
+		// For every solution, try combining it with every word
+		// This double loop is the bottleneck of the entire algorithm
+		for (let sol = 0 ; sol < solutions.length ; sol++) {
+			let solCanon =  solutions[sol].canonical
+			let maxLength = numOfBlocks - solCanon.length
+	
+			for (let wrd = 0 ; wrd < words.length ; wrd ++) {
+				let wrdCanon = words[wrd].canonical
+	
+				if (wrdCanon.length > maxLength) {
+					continue
+				}
+	
+				let combined = canonicalVersion(solCanon + wrdCanon)
+				if (canWork(combined)) {
+					addToSolutionSet(nextSolutions, combined, solutions[sol], wrdCanon)
+				}
+			}
+		}
+	
+		// Convert back to list
+		let result = []
+		for (let solution in nextSolutions) {
+			result.push({
+				canonical: solution,
+				factors: nextSolutions[solution]
+			})
+		}
+	
+		return result
+	}
 
-function addToSolution(solutionSet, canonical, prev, factor) {
-	let newFactors = prev.factors.map((factorList) => {
-		return factorList.concat(factor)
-	})
+	function addToSolutionSet(solutionSet, canonical, prev, factor) {
+		let newFactors = prev.factors.map((factorList) => {
+			return factorList.concat(factor).sort()
+		})
+	
+		if (solutionSet[canonical]) {
+			solutionSet[canonical] = _.uniqBy(solutionSet[canonical].concat(newFactors), (list) => {
+				return list.join('-')
+			})
+		} else {
+			solutionSet[canonical] = newFactors
+		}
+	}
 
-	if (solutionSet[canonical]) {
-		solutionSet[canonical] = solutionSet[canonical].concat(newFactors)
-	} else {
-		solutionSet[canonical] = newFactors
+	function translateSolution(solution) {
+		let expanded = solution.factors.map((factors) => {
+			return factors.map((word) => {
+				return wordDict[word]
+			})
+		})
+
+		let translated = expanded.map((list) => {
+			return listCombinations(list, ' ')
+		})
+
+		return _.flatten(translated)
 	}
 }
 
@@ -202,6 +247,29 @@ function canonicalVersion(str) {
 	let chars = str.split('')
 	let sorted = chars.sort()
 	return sorted.join('')
+}
+
+// Given an array of arrays of strings, get all combinations of contents, with one selection per child array
+function listCombinations(array, separator) {
+	let numOfChoices = array.reduce((soFar, current) => {return soFar * current.length}, 1)
+	let choices = []
+
+	// Iterate through all choices
+	for (let choice = 0 ; choice < numOfChoices ; choice++) {
+		let row = []
+
+		// With the choice we have, select one element from each subarray
+		let choiceVar = choice
+		for (let subarray = 0 ; subarray < array.length ; subarray++) {
+			let index = choiceVar % array[subarray].length
+			row.push(array[subarray][index])
+			choiceVar = Math.round((choiceVar - index) / array[subarray].length)
+		}
+
+		choices[choice] = row.join(separator)
+	}
+
+	return choices
 }
 
 function recalc() {
