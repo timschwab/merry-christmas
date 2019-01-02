@@ -21,6 +21,8 @@ function main(sampleSize) {
 	getWords()
 	buildWordDict()
 	findSolutions(sampleSize)
+
+	console.log('Done')
 }
 
 function getAnagrams() {
@@ -40,8 +42,6 @@ function getAnagrams() {
 
 		localStorage.setItem('anagrams', JSON.stringify(anagrams))
 	}
-
-	console.log('Done')
 }
 
 function getWords() {
@@ -96,8 +96,6 @@ function getWords() {
 
 		localStorage.setItem('words', JSON.stringify(words))
 	}
-
-	console.log('Done')
 }
 
 function buildWordDict() {
@@ -141,8 +139,6 @@ function findSolutions(sampleSize) {
 	console.log('Translating solutions...')
 	solutions = solutions.map(translateSolution)
 	solutions = _.flatten(solutions)
-
-	console.log('Done')
 
 	function firstSolutions() {
 		console.log('Copying words into first solution list...')
@@ -265,8 +261,18 @@ function listCombinations(array, separator) {
 	return choices
 }
 
-function recalc() {
+function recalcAll() {
 	localStorage.removeItem('anagrams')
+	localStorage.removeItem('words')
+	main()
+}
+
+function recalcAnagrams() {
+	localStorage.removeItem('anagrams')
+	main()
+}
+
+function recalcWords() {
 	localStorage.removeItem('words')
 	main()
 }
