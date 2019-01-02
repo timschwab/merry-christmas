@@ -255,7 +255,7 @@ function listCombinations(array, separator) {
 		let choiceVar = choice
 		for (let subarray = 0 ; subarray < array.length ; subarray++) {
 			let index = choiceVar % array[subarray].length
-			row.push(array[subarray][index])
+			row[subarray] = array[subarray][index]
 			choiceVar = Math.round((choiceVar - index) / array[subarray].length)
 		}
 
