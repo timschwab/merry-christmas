@@ -6,143 +6,155 @@ let solutions
 const numOfBlocks = blocks.length
 const numOfChoices = blocks[0].length
 const defaultSampleSize = 100
-const defaultSolutionAmount = 100
-
-function getSolutions(amount) {
-	amount = amount || defaultSolutionAmount
-
-	return _.sampleSize(solutions, amount)
-}
-
-function main(sampleSize) {
-	sampleSize = sampleSize || defaultSampleSize
-
-	getAnagrams()
-	getWords()
-	buildWordDict()
-	findSolutions(sampleSize)
-
-	console.log('Done')
-}
-
-function getAnagrams() {
-	anagrams = {}
-
-	if (localStorage.getItem('anagrams')) {
-		console.log('Retrieving anagrams...')
-		anagrams = JSON.parse(localStorage.getItem('anagrams'))
-
-	} else {
-		console.log('Generating anagrams...')
-
-		let rawAnagrams = listCombinations(blocks, '')
-		rawAnagrams.forEach((anagram) => {
-			anagrams[canonicalVersion(anagram)] = 1
-		})
-
-		localStorage.setItem('anagrams', JSON.stringify(anagrams))
-	}
-}
-
-function getWords() {
-	words = []
-
-	if (localStorage.getItem('words')) {
-		console.log('Retrieving words...')
-		words = JSON.parse(localStorage.getItem('words'))
-	} else {
-		console.log('Loading words...')
-		wordList = rawWords.trim().toLowerCase().split('\n')
-		nameList = names.trim().toLowerCase().split('\n')
-		words = _.uniq(wordList.concat(nameList))
-	
-		console.log('Removing impossible words...')
-		words = words.filter((word) => {
-			return canWork(canonicalVersion(word))
-		})
-	
-		console.log('Generating canonical reverse indices...')
-		words = words.map((word) => {
-			return {
-				original: word,
-				canonical: canonicalVersion(word)
-			}
-		})
-	
-		console.log('Sorting by canonical index...')
-		words = words.sort((a, b) => {
-			if (a.canonical > b.canonical){
-				return 1
-			} else {
-				return -1
-			}
-		})
-	
-		console.log('Combining identical indices...')
-		words = words.reduce((soFar, next, index, array) => {
-		if ((soFar.length == 0) || (array[index-1].canonical != next.canonical)) {
-			soFar.push({
-				canonical: next.canonical,
-				list: [next.original]
-			})
-		} else {
-			soFar[soFar.length-1].list.push(next.original)
-		}
-	
-		return soFar
-		}, [])
-
-
-
-		localStorage.setItem('words', JSON.stringify(words))
-	}
-}
-
-function buildWordDict() {
-	wordDict = {}
-
-	console.log('Building word dictionary...')
-
-	words.forEach((word) => {
-		wordDict[word.canonical] = word.list
-	})
-}
+const defaultRetrieveAmount = 100
 
 /*
-	Algorithm: starts with one word solutions, which is exactly the words data
-	structure. Next it combines them all with each other, finding the two word
-	solutions. Then it combines these with the one word solutions, which finds
-	the three word solutions. And so on, until it cannot continue.
+	Available funcs:
+		init()
+		findSolutionsByWord(wordToFind)
+		findSolutionsBySample(sampleSize)
+		filterSolutions(word)
+		retrieveSolutions(amount)
+		reinit(arg)
 */
-function findSolutions(sampleSize) {
-	console.log('Sampling word list...')
-	let wordList = _.sampleSize(words, sampleSize)
 
-	solutions = []
-
-	console.log('Finding solutions...')
-
-	console.log('Finding solutions with 1 word...')
-	let solutionSet = firstSolutions()
-	let wordCount = 1
-	while (solutionSet.length > 0) {
-		solutions.push(solutionSet)
-		wordCount++
-		console.log('Finding solutions with ' + wordCount + ' words...')
-		solutionSet = nextSolutions(solutionSet)
+function init() {
+	if (!anagrams) {
+		getAnagrams()
 	}
-	console.log('No solutions with ' + wordCount + ' words.')
 
-	console.log('Combining all solutions...')
-	solutions = _.flatten(solutions)
+	if (!words) {
+		getWords()
+	}
 
-	console.log('Translating solutions...')
-	solutions = solutions.map(translateSolution)
-	solutions = _.flatten(solutions)
+	if (!wordDict) {
+		buildWordDict()
+	}
 
-	function firstSolutions() {
-		console.log('Copying words into first solution list...')
+	console.log('Done')
 
+	function getAnagrams() {
+		anagrams = {}
+	
+		if (localStorage.getItem('anagrams')) {
+			console.log('Retrieving anagrams...')
+			anagrams = JSON.parse(localStorage.getItem('anagrams'))
+	
+		} else {
+			console.log('Generating anagrams...')
+	
+			let rawAnagrams = listCombinations(blocks, '')
+			rawAnagrams.forEach((anagram) => {
+				anagrams[canonicalVersion(anagram)] = 1
+			})
+
+			delete anagrams['']
+	
+			localStorage.setItem('anagrams', JSON.stringify(anagrams))
+		}
+	}
+
+	function getWords() {
+		words = []
+	
+		if (localStorage.getItem('words')) {
+			console.log('Retrieving words...')
+			words = JSON.parse(localStorage.getItem('words'))
+		} else {
+			console.log('Loading words...')
+			wordList = rawWords.trim().toLowerCase().split('\n')
+			nameList = names.trim().toLowerCase().split('\n')
+			words = _.uniq(wordList.concat(nameList))
+		
+			console.log('Removing impossible words...')
+			words = words.filter((word) => {
+				return canWork(word)
+			})
+		
+			console.log('Generating canonical reverse indices...')
+			words = words.map((word) => {
+				return {
+					original: word,
+					canonical: canonicalVersion(word)
+				}
+			})
+		
+			console.log('Sorting by canonical index...')
+			words = words.sort((a, b) => {
+				if (a.canonical > b.canonical){
+					return 1
+				} else {
+					return -1
+				}
+			})
+		
+			console.log('Combining identical indices...')
+			words = words.reduce((soFar, next, index, array) => {
+			if ((soFar.length == 0) || (array[index-1].canonical != next.canonical)) {
+				soFar.push({
+					canonical: next.canonical,
+					list: [next.original]
+				})
+			} else {
+				soFar[soFar.length-1].list.push(next.original)
+			}
+		
+			return soFar
+			}, [])
+			
+			localStorage.setItem('words', JSON.stringify(words))
+		}
+	}
+
+	function buildWordDict() {
+		wordDict = {}
+	
+		console.log('Building word dictionary...')
+	
+		words.forEach((word) => {
+			wordDict[word.canonical] = word.list
+		})
+	}
+}
+
+// Find all the solutions that contain this word
+function findSolutionsByWord(wordToFind) {
+	wordToFind = wordToFind || ''
+	wordToFind = wordToFind.toLowerCase()
+
+	console.log('Checking possibility...')
+
+	if (!canWork(wordToFind)) {
+		console.log('No solutions contain "' + wordToFind + '".')
+		return
+	}
+
+	console.log('Creating initial solution set...')
+
+	let word = words.filter(word => {
+		return word.list.includes(wordToFind)
+	})
+
+	let firstSet = [{
+		canonical: word[0].canonical,
+		factors: [[word[0].canonical]]
+	}]
+
+	solutions = findSolutions(words, firstSet)
+}
+
+// Find all the solutions by randomly restricting the available words to a certain number
+function findSolutionsBySample(sampleSize) {
+	sampleSize = sampleSize || defaultSampleSize
+
+	console.log('Sampling word list...')
+
+	let wordList = _.sampleSize(words, sampleSize)
+	let firstSet = firstSolutions(wordList)
+	solutions = findSolutions(wordList, firstSet)
+
+	function firstSolutions(wordList) {
+		// Simply copy the words into the first solution list
 		let firstList = []
 		wordList.forEach((word) => {
 			let copy = {
@@ -155,8 +167,41 @@ function findSolutions(sampleSize) {
 
 		return firstList
 	}
+}
 
-	// By far, most compute-intensive function
+/*
+	Algorithm: starts with one word solutions, which is exactly the words data
+	structure. Next it combines them all with each other, finding the two word
+	solutions. Then it combines these with the one word solutions, which finds
+	the three word solutions. And so on, until it cannot continue.
+*/
+function findSolutions(wordList, firstSet) {
+	console.log('Finding solutions...')
+
+	let result = []
+
+	let solutionSet = firstSet
+	let wordCount = 1
+	while (solutionSet.length > 0) {
+		result.push(solutionSet)
+		wordCount++
+		console.log('Finding solutions with ' + wordCount + ' words...')
+		solutionSet = nextSolutions(solutionSet)
+	}
+	console.log('No solutions with ' + wordCount + ' words.')
+
+	console.log('Combining all solutions...')
+	result = _.flatten(result)
+
+	console.log('Translating solutions...')
+	result = result.map(translateSolution)
+	result = _.flatten(result)
+
+	console.log('Done.')
+
+	return result
+
+	// By far, the most compute-intensive function
 	function nextSolutions(solutions) {
 		let nextSolutions = {}
 	
@@ -169,12 +214,13 @@ function findSolutions(sampleSize) {
 			for (let wrd = 0 ; wrd < wordList.length ; wrd ++) {
 				let wrdCanon = wordList[wrd].canonical
 
+				// Some optimization - a length check is faster than canWorkFast(canonicalVersion(solCanon + wrdCanon))
 				if (wrdCanon.length > maxLength) {
 					continue
 				}
 	
 				let combined = canonicalVersion(solCanon + wrdCanon)
-				if (canWork(combined)) {
+				if (canWorkFast(combined)) {
 					addToSolutionSet(nextSolutions, combined, solutions[sol], wrdCanon)
 				}
 			}
@@ -223,19 +269,60 @@ function findSolutions(sampleSize) {
 	}
 }
 
-// Assumes str is in canonical version
-function canWork(str) {
-	if (anagrams[str] !== undefined) {
-		return true
-	} else {
-		return false
-	}
+function retrieveSolutions(amount) {
+	amount = amount || defaultRetrieveAmount
+
+	return _.sampleSize(solutions, amount)
 }
+
+function reinit(arg) {
+	arg = arg || 'all'
+
+	if (arg == 'all') {
+		localStorage.removeItem('anagrams')
+		anagrams = undefined
+
+		localStorage.removeItem('words')
+		words = undefined
+
+		wordDict = undefined
+	} else if (arg == 'anagrams') {
+		localStorage.removeItem('anagrams')
+		anagrams = undefined
+	} else if (arg == 'words') {
+		localStorage.removeItem('words')
+		words = undefined
+	} else if (arg == 'wordDict') {
+		wordDict = undefined
+	} else {
+		console.log('Didn\'t understand that argument.')
+		return
+	}
+
+	init()
+}
+
+/*
+	All util functions beneath this line
+*/
 
 function canonicalVersion(str) {
 	let chars = str.split('')
 	let sorted = chars.sort()
 	return sorted.join('')
+}
+
+function canWork(str) {
+	return canWorkFast(canonicalVersion(str))
+}
+
+// Assumes str is in canonical version and anagrams has been built
+function canWorkFast(str) {
+	if (anagrams[str] !== undefined) {
+		return true
+	} else {
+		return false
+	}
 }
 
 // Given an array of arrays of strings, get all combinations of contents, with one selection per child array
@@ -261,21 +348,13 @@ function listCombinations(array, separator) {
 	return choices
 }
 
-function recalcAll() {
-	localStorage.removeItem('anagrams')
-	localStorage.removeItem('words')
-	main()
+// Return only the solutions that contain a particular word
+function filterSolutions(word) {
+	return solutions.filter(s => {
+		return s.includes(word)
+	})
 }
 
-function recalcAnagrams() {
-	localStorage.removeItem('anagrams')
-	main()
-}
-
-function recalcWords() {
-	localStorage.removeItem('words')
-	main()
-}
 
 
 

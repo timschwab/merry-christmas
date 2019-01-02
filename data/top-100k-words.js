@@ -220,7 +220,6 @@ far
 un
 seemed
 house
-hw
 got
 God
 head
@@ -247,7 +246,6 @@ knew
 No
 heart
 seen
-se
 days
 qui
 name
@@ -257,7 +255,6 @@ better
 So
 full
 something
-du
 moment
 gave
 country
@@ -271,9 +268,7 @@ On
 cannot
 asked
 small
-ne
 enough
-il
 want
 side
 woman
@@ -324,7 +319,6 @@ works
 pas
 sent
 often
-tt
 stood
 power
 Now
@@ -344,7 +338,6 @@ By
 thy
 hundred
 ets
-je
 kind
 order
 war
@@ -399,7 +392,6 @@ known
 English
 four
 hope
-au
 along
 leave
 sure
@@ -422,7 +414,6 @@ either
 held
 whether
 letter
-ce
 help
 free
 general
@@ -460,7 +451,6 @@ business
 electronic
 behind
 making
-zu
 I'll
 cried
 answered
@@ -529,7 +519,6 @@ followed
 law
 evening
 truth
-sa
 ground
 understand
 show
@@ -552,7 +541,6 @@ said
 talk
 account
 answer
-ja
 paid
 across
 arms
@@ -575,7 +563,6 @@ van
 sight
 interest
 six
-St
 General
 von
 book
@@ -591,7 +578,6 @@ age
 meet
 longer
 story
-sn
 deep
 nearly
 line
@@ -613,7 +599,6 @@ it's
 nicht
 toward
 rose
-es
 beyond
 again
 laws
@@ -642,7 +627,6 @@ Some
 none
 happy
 It's
-Il
 position
 France
 else
