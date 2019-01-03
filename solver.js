@@ -14,7 +14,7 @@ const defaultRetrieveAmount = 100
 		findSolutionsByWord(wordToFind)
 		findSolutionsBySample(sampleSize)
 		filterSolutions(word)
-		retrieveSolutions(amount)
+		sampleSolutions(amount)
 		reinit(arg)
 */
 
@@ -269,7 +269,7 @@ function findSolutions(wordList, firstSet) {
 	}
 }
 
-function retrieveSolutions(amount) {
+function sampleSolutions(amount) {
 	amount = amount || defaultRetrieveAmount
 
 	return _.sampleSize(solutions, amount)

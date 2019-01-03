@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="UTF-8">
 	<title>Merry Christmas</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="style.css">
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"></script>
@@ -11,11 +14,38 @@
 	<script src="data/top-100k-words.js"></script>
 	<script src="data/names.js"></script>
 
-	<script src="src.js"></script>
+	<script src="gui.js"></script>
+	<script src="solver.js"></script>
 </head>
 
 <body>
 	<div id="app">
+		<div id="init-container">
+			<input type="button" class="btn" id="init" value="Initialize system">
+			<br />
+		</div>
+		<div id="reinit-container" class="hidden">
+			<input type="button" class="btn" id="reinit" value="Re-initialize system">
+			<br />
+		</div>
+
+		<input type="text" id="byWord-arg">
+		<input type="button" class="btn" id="byWord" value="Find solutions by word">
+		<br />
+
+		<input type="text" id="bySample-arg">
+		<input type="button" class="btn" id="bySample" value="Find solutions by sample">
+		<br />
+
+		<input type="text" id="sampleSolutions-arg">
+		<input type="button" class="btn" id="sampleSolutions" value="Sample current solutions">
+		<br />
+
+		<input type="text" id="filterSolutions-arg">
+		<input type="button" class="btn" id="filterSolutions" value="Filter current solutions">
+
 	</div>
 </body>
+
 </html>
+
