@@ -154,7 +154,7 @@ function createSolver() {
 
 		if (!canWork(wordToFind)) {
 			console.log('No solutions contain "' + wordToFind + '".')
-			return
+			return false
 		}
 
 		console.log('Creating initial solution set...')
@@ -169,6 +169,7 @@ function createSolver() {
 		}]
 
 		solutions = findSolutions(words, firstSet)
+		return true
 	}
 
 	// Find all the solutions by randomly restricting the available words to a certain number
@@ -176,9 +177,9 @@ function createSolver() {
 		sampleSize = sampleSize || defaultSampleSize
 
 		console.log('Sampling word list...')
-
 		let wordList = _.sampleSize(words, sampleSize)
 		let firstSet = firstSolutions(wordList)
+
 		solutions = findSolutions(wordList, firstSet)
 
 		function firstSolutions(wordList) {
