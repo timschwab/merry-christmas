@@ -1,3 +1,7 @@
+/*
+	Set up
+*/
+
 let solver
 let workingSolutions
 
@@ -10,9 +14,14 @@ function setupGui() {
 	$("#reinit").click(reinitClick)
 	$("#byWord").click(byWordClick)
 	$("#bySample").click(bySampleClick)
+	$("#reset").click(resetClick)
 	$("#sampleSolutions").click(sampleSolutionsClick)
 	$("#filterSolutions").click(filterSolutionsClick)
 }
+
+/*
+	Event handlers
+*/
 
 function initClick() {
 	$("#message").html('Initializing...')
@@ -33,6 +42,7 @@ function reinitClick() {
 		solver.reinit()
 
 		$("#message").html('Re-initialized and cached. Now, find either 1) all solutions that include a certain word or 2) some random solutions.')
+		$("#reset-container").addClass('hidden')
 		$("#sampleSolutions-container").addClass('hidden')
 		$("#filterSolutions-container").addClass('hidden')	
 	}, 100)
@@ -40,62 +50,98 @@ function reinitClick() {
 
 function byWordClick() {
 	let arg = $("#byWord-arg").val()
-	$("#message").html('Finding solutions that contain "' + arg + '"...')
+	$("#message").html('Finding all solutions that contain "' + arg + '"...')
 
 	setTimeout(() => {
 		if (!solver.findSolutionsByWord(arg)) {
 			$("#message").html('No solutions exist that contain "' + arg + '".')
-			return
+		} else {
+			workingSolutions = solver.getSolutions()
+			$("#message").html('Found ' + workingSolutions.length + ' solutions.')
+			$("#reset-container").addClass('hidden')
+			$("#sampleSolutions-container").removeClass('hidden')
+			$("#filterSolutions-container").removeClass('hidden')	
 		}
-
-		$("#message").html('Found ' + solver.getSolutions().length + ' solutions.')
-		$("#sampleSolutions-container").removeClass('hidden')
-		$("#filterSolutions-container").removeClass('hidden')	
 	}, 100)
 }
 
 function bySampleClick() {
-	$("#message").html('Finding solutions by word sample...')
+	$("#message").html('Finding some solutions by word sample...')
 	setTimeout(() => {
 		let arg = $("#bySample-arg").val()
 		solver.findSolutionsBySample(arg)
+		workingSolutions = solver.getSolutions()
 
-		$("#message").html('Found ' + solver.getSolutions().length + ' solutions.')
+		$("#message").html('Found ' + workingSolutions.length + ' solutions.')
+		$("#reset-container").addClass('hidden')
 		$("#sampleSolutions-container").removeClass('hidden')
 		$("#filterSolutions-container").removeClass('hidden')
 	}, 100)
+}
+
+function resetClick() {
+	workingSolutions = solver.getSolutions()
+	$("#message").html('Reset solutions.')
+	$("#reset-container").addClass('hidden')
 }
 
 function sampleSolutionsClick() {
 	$("#message").html('Getting some solutions...')
 	setTimeout(() => {
 		let arg = $("#sampleSolutions-arg").val()
-		let workingSolutions = solver.sampleSolutions(arg)
+		let sample = sampleWorkingSolutions(arg)
 
-		if (workingSolutions.length > 0) {
-			drawSolutions(workingSolutions)
+		if (sample.length > 0) {
+			drawSolutions(sample)
+			$("#message").html('Drew ' + sample.length + ' solutions.')
 		} else {
-
+			$("#message").html('No working solutions to sample.')
 		}
 	}, 100)
 }
 
 function filterSolutionsClick() {
-	$("#message").html('Filtering current solutions...')
+	$("#message").html('Filtering working solutions...')
 	setTimeout(() => {
-		let arg = $("#sampleSolutions-arg").val()
-		let workingSolutions = solver.filterSolutions(arg)
+		let arg = $("#filterSolutions-arg").val()
+		let filtered = filterWorkingSolutions(arg)
 
-		if (workingSolutions.length > 0) {
-			$("#message").html('Filtered solutions and got ' + 2 +' results...')
+		if (filtered.length > 0) {
+			$("#message").html('Filtered solutions and got ' + filtered.length +' results.')
+			$("#reset-container").removeClass('hidden')
+			workingSolutions = filtered
 		} else {
-			$("#message").html('Filtered solutions...')
+			$("#message").html('No working solutions contain "' + arg + '".')
 		}
 	}, 100)
 }
 
+/*
+	Util functions
+*/
+
 function drawSolutions(solutions) {
 	let html = ""
-	$("results").html(html)
+	solutions.forEach(solution => {
+		html += solution + "<br \>"
+	})
+	$("#results").html(html)
+}
+
+function filterWorkingSolutions(word) {
+	return workingSolutions.filter(solution => {
+		return solution.includes(word)
+	})
+
+	if (filtered.length > 0) {
+		workingSolutions = filtered
+		return true
+	} else {
+		return false
+	}
+}
+
+function sampleWorkingSolutions(size) {
+	return _.sampleSize(workingSolutions, size)
 }
 
