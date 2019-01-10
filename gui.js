@@ -129,16 +129,11 @@ function drawSolutions(solutions) {
 }
 
 function filterWorkingSolutions(word) {
-	return workingSolutions.filter(solution => {
-		return solution.includes(word)
-	})
+	let regex = new RegExp('\\b' + word + '\\b')
 
-	if (filtered.length > 0) {
-		workingSolutions = filtered
-		return true
-	} else {
-		return false
-	}
+	return workingSolutions.filter(solution => {
+		return regex.test(solution)
+	})
 }
 
 function sampleWorkingSolutions(size) {
