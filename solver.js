@@ -287,6 +287,7 @@ function createSolver() {
 			return result
 		}
 
+		// This isn't the bottleneck, but any optimization here would be pretty big, and there definitely could be optimization
 		function addToSolutionSet(solutionSet, canonical, prev, factor) {
 			let newFactors = prev.factors.map((factorList) => {
 				return factorList.concat(factor).sort()
