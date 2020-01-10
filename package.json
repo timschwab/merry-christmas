@@ -18,7 +18,8 @@
   },
   "homepage": "https://github.com/timschwab/merry-christmas#readme",
   "dependencies": {
-    "jquery": "^3.4.1"
+    "jquery": "^3.4.1",
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
     "css-loader": "^3.4.2",

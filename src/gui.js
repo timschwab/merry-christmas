@@ -1,16 +1,15 @@
-const solverSystem = require('./solver')
+const solver = require('./solver')
 
 /*
 	Set up
 */
 
-let solver
 let workingSolutions
 
 $(setupGui)
 
 function setupGui() {
-	solver = solverSystem.createSolver()
+	solver.init()
 
 	$("#init").click(initClick)
 	$("#reinit").click(reinitClick)
