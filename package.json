@@ -18,14 +18,20 @@
   },
   "homepage": "https://github.com/timschwab/merry-christmas#readme",
   "dependencies": {
+    "bootstrap": "^4.4.1",
     "jquery": "^3.4.1",
-    "lodash": "^4.17.15"
+    "lodash": "^4.17.15",
+    "popper.js": "^1.16.0",
+    "vue": "^2.6.11"
   },
   "devDependencies": {
     "css-loader": "^3.4.2",
     "husky": "^4.0.6",
     "lint-staged": "^9.5.0",
     "prettier": "^1.19.1",
+    "vue-loader": "^15.8.3",
+    "vue-style-loader": "^4.1.2",
+    "vue-template-compiler": "^2.6.11",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10"
   },
@@ -35,7 +41,7 @@
     }
   },
   "lint-staged": {
-    "src/*.{js, json, css, html, vue}": [
+    "src/**/*.{js, json, css, html, vue}": [
       "prettier --write",
       "git add"
     ]

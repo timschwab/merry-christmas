@@ -33,7 +33,7 @@ function initClick() {
 		$("#init-container").addClass('hidden')
 		$("#reinit-container").removeClass('hidden')
 		$("#byWord-container").removeClass('hidden')
-		$("#bySample-container").removeClass('hidden')	
+		$("#bySample-container").removeClass('hidden')
 	}, 100)
 }
 
@@ -45,7 +45,7 @@ function reinitClick() {
 		$("#message").html('Re-initialized and cached. Now, find either 1) all solutions that include a certain word or 2) some random solutions.')
 		$("#reset-container").addClass('hidden')
 		$("#sampleSolutions-container").addClass('hidden')
-		$("#filterSolutions-container").addClass('hidden')	
+		$("#filterSolutions-container").addClass('hidden')
 	}, 100)
 }
 
@@ -61,7 +61,7 @@ function byWordClick() {
 			$("#message").html('Found ' + workingSolutions.length + ' solutions.')
 			$("#reset-container").addClass('hidden')
 			$("#sampleSolutions-container").removeClass('hidden')
-			$("#filterSolutions-container").removeClass('hidden')	
+			$("#filterSolutions-container").removeClass('hidden')
 		}
 	}, 100)
 }

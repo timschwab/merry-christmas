@@ -7,55 +7,11 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="style.css">
 
-	<script src="../dist/bundle.js"></script>
+	<script src="../dist/bundle.js" defer></script>
 </head>
 
 <body>
-	<div id="app">
-		<div>
-			<p id="message">Waiting for initialization</p>
-		</div>
-
-		<div id="init-container">
-			<input type="button" class="btn" id="init" value="Initialize system">
-			<br />
-		</div>
-
-		<div id="reinit-container" class="hidden">
-			<input type="button" class="btn" id="reinit" value="Re-initialize system">
-			<br />
-		</div>
-
-		<div id="byWord-container" class="hidden">
-			<input type="button" class="btn" id="byWord" value="Find solutions by word">
-			<input type="text" id="byWord-arg" value="timmy">
-			<br />
-		</div>
-
-		<div id="bySample-container" class="hidden">
-			<input type="button" class="btn" id="bySample" value="Find some solutions by random sample of words">
-			<input type="text" id="bySample-arg" value="100">
-			<br />
-		</div>
-
-		<div id="reset-container" class="hidden">
-			<input type="button" class="btn" id="reset" value="Reset to most recent solution search">
-			<br />
-		</div>
-
-		<div id="sampleSolutions-container" class="hidden">
-			<input type="button" class="btn" id="sampleSolutions" value="Sample current solutions">
-			<input type="text" id="sampleSolutions-arg" value="15">
-			<br />
-		</div>
-
-		<div id="filterSolutions-container" class="hidden">
-			<input type="button" class="btn" id="filterSolutions" value="Filter current solutions">
-			<input type="text" id="filterSolutions-arg" value="caesar">
-		</div>
-	</div>
-
-	<div id="results"></div>
+	<div id="app"></div>
 </body>
 
 </html>
