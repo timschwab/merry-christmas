@@ -1,0 +1,31 @@
+{
+  "name": "merry-christmas",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "build": "webpack",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timschwab/merry-christmas.git"
+  },
+  "author": "Tim Schwab",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/timschwab/merry-christmas/issues"
+  },
+  "homepage": "https://github.com/timschwab/merry-christmas#readme",
+  "dependencies": {
+    "jquery": "^3.4.1"
+  },
+  "devDependencies": {
+    "css-loader": "^3.4.2",
+    "husky": "^4.0.6",
+    "lint-staged": "^9.5.0",
+    "prettier": "^1.19.1",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
+  }
+}

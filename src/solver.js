@@ -366,7 +366,9 @@ function createSolver() {
 	}
 }
 
-
+module.exports = {
+	createSolver: createSolver
+}
 
 
 
