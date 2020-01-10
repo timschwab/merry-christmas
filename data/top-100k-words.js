@@ -1,4 +1,4 @@
-let rawWords = `
+module.exports = `
 
 the
 of

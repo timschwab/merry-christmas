@@ -1,4 +1,4 @@
-let blocks = 
+module.exports = 
 
 [
 
@@ -19,4 +19,3 @@ let blocks =
 
 ]
 
-;

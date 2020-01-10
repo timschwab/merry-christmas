@@ -1,4 +1,4 @@
-let names = `
+module.exports = `
 
 aaban
 aabid

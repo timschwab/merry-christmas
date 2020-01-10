@@ -1,3 +1,7 @@
+const blocks = require('../data/blocks')
+const names = require('../data/names')
+const rawWords = require('../data/top-100k-words')
+
 let solutions
 
 let anagrams
